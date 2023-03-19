@@ -1,8 +1,7 @@
-use cursive::view::Resizable as _;
-use cursive::views::{self, Dialog, EditView, LinearLayout, TextView};
-use cursive::Cursive;
+use cursive::views::LinearLayout;
 
 mod aparence;
+mod components;
 mod interaction;
 
 fn main() {
@@ -10,41 +9,10 @@ fn main() {
 
     aparence::style::initial_style(&mut siv);
 
-    let layout = views::LinearLayout::vertical()
-        .child(TextView::new("This is a dynamic theme example!"))
-        .child(
-            EditView::new()
-                .content("Woo! colors!")
-                .on_submit(|s, text| {
-                    s.add_layer(
-                        cursive::views::OnEventView::new(Dialog::new().title(text)).on_event(
-                            cursive::event::Key::Esc,
-                            |s| {
-                                s.pop_layer();
-                            },
-                        ),
-                    )
-                }),
-        );
+    siv.add_global_callback('q', |s| s.quit());
 
     siv.add_fullscreen_layer(
-        LinearLayout::horizontal()
-            .child(
-                Dialog::around(layout)
-                    .h_align(cursive::align::HAlign::Center)
-                    .title("Theme example")
-                    .button("Change", |s| {
-                        interaction::http_verb::open_menu(s);
-                    })
-                    .button("Quit", Cursive::quit)
-                    .resized(
-                        cursive::view::SizeConstraint::AtLeast(50),
-                        cursive::view::SizeConstraint::Full,
-                    ),
-            )
-            .child(EditView::new().on_submit(|s, _t| {
-                s.clear();
-            })),
+        LinearLayout::horizontal().child(components::request_config::request_config()),
     );
 
     siv.run();
